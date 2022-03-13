@@ -1,5 +1,5 @@
 # umee network monitor
-Simple tool to check event nonce of validator and compare it wioth opther validators event nonce and raise an alert(right now its telegram)
+Simple tool to check event nonce of validator and compare it with other top-10 validators (with voting power) event nonce and raise an alert(right now its telegram)
 
 Also looks at sync status of eth rpc node and raises an alert.
 
@@ -46,7 +46,7 @@ logout and log back in
 
 
 # Running
-Run using tools like screen,tmux or create a service file if you prefer that.
+Run the following commands using tools like screen,tmux or create a service file if you prefer that.
 Clone the github repo.
 After that run the following commands
 - `npm install`
