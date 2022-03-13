@@ -7,6 +7,8 @@ Features
 - Picks top-10 validator nodes by voting power and checks the latest event nonce
 - Checks for sync status of eth rpc node
 - All requests are done in a concurrent way so as to get quick response
+- Heartbeat alert in telegram(configurable in minutes)
+- Error alert in telegram if there are nodes with higher event nonce than yours or eth rpc status has gone to catch-up mode.
 
 # Prerequisites
 
@@ -35,7 +37,8 @@ Features
 3. TELEGRAM_BOT_TOKEN="Telegram bot token from above step"
 4. TELEGRAM_CHAT_ID="Telegram chat id from above step"
 5. RUN_INTERVAL_IN_MINS="Frequency of running the bot in mins. Ex: 10"
-6. ETH_RPC_ENDPOINT="eth rpc endpoint. Ex: http://x.x.x.x:8545"
+6. HEARTBEAT_INTERVAL_IN_MINS="Frequency of running the heartbeat flow in mins. Ex: 10"
+7. ETH_RPC_ENDPOINT="eth rpc endpoint. Ex: http://x.x.x.x:8545"
 
 
 # Running

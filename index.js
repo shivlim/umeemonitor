@@ -10,6 +10,7 @@ const umeerpcurl = process.env.UMEE_RPC_URL
 const telegrambottoken = process.env.TELEGRAM_BOT_TOKEN
 const telegramchaitid = process.env.TELEGRAM_CHAT_ID
 const runintervalinmins = process.env.RUN_INTERVAL_IN_MINS
+const heartbeatinterval = process.env.HEARTBEAT_INTERVAL_IN_MINS
 const ethrpcendpoint = process.env.ETH_RPC_ENDPOINT
 
 const syncrequestpayload = {"id": 1, "jsonrpc": "2.0", "method": "eth_syncing", "params": []};
@@ -19,7 +20,7 @@ const agent = new https.Agent({
 });
 
 
-async function checknodestatus() {
+async function checknodestatus(...heartbeat) {
     const res = await axios.get(umeerpcurl + 'cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED',{ httpsAgent: agent })
     const validators = res.data.validators
     const reducedvalidators = validators.map(
@@ -60,14 +61,27 @@ async function checknodestatus() {
 
     const syncresponse = await axios.post(ethrpcendpoint, syncrequestpayload);
     const data = syncresponse.data;
-    console.log(data)
+    const mynodepercentage = (numbersGreaterThanMine/10 * 100);
+    const maxeventnonce = Math.max(...eventNoncesNumber);
 
-    let telegramalerttxt = "MyEventNonce==>" + mynodeeventnonce + "\n" + "MaxEventNonce==>"+Math.max(...eventNoncesNumber)
-        + "\n" + "Percentage of nodes greater than mine==>" +  (numbersGreaterThanMine/10 * 100) + "\n" + "ETH RPC node sync status==>" + data.result
 
-    slimbot.sendMessage(telegramchaitid, telegramalerttxt);
+
+    let telegramalerttxt = "MyEventNonce==>" + mynodeeventnonce + "\n" + "MaxEventNonce==>"+maxeventnonce
+        + "\n" + "Percentage of nodes greater than mine==>" +  mynodepercentage + "\n" + "ETH RPC node sync status==>" + data.result
+
+    /** Trigger an emergency error if there are nodes with higher event nonce than mine or eth rpc status has gone to catch-up mode*/
+    if(!heartbeat[0] && (mynodepercentage>0 || data.result === true)){
+        console.log('error in the system. so triggering alert')
+        slimbot.sendMessage(telegramchaitid, telegramalerttxt);
+    }else{
+        console.log('heartbeat alert')
+        slimbot.sendMessage(telegramchaitid, telegramalerttxt);
+    }
+
+
 
 }
 
-checknodestatus();
-setInterval(checknodestatus, runintervalinmins * 60  * 1000);
+checknodestatus(true);
+setInterval(checknodestatus, runintervalinmins * 60  * 1000,false);
+setInterval(checknodestatus, heartbeatinterval * 60  * 1000,true);
