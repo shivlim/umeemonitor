@@ -14,7 +14,8 @@ Features
 
 - Install nodejs and npm using nvm 
   **`nvm use 16`**
-- Obtain telegram bot id and chat id using steps below
+- Obtain telegram bot id and chat id using steps below.
+- Create .env file by renaming env file and updating property values accordingly.
 
 1. To create a free **Telegram account**, download the [app for Android / iPhone](https://telegram.org) and sign up using your phone number.
 2. To create a **Telegram bot**, add [@BotFather](https://telegram.me/BotFather) on Telegram, press Start, and follow the below steps:
