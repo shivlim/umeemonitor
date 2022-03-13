@@ -11,9 +11,12 @@ Features
 - Error alert in telegram if there are nodes with higher event nonce than yours or eth rpc status has gone to catch-up mode.
 
 # Prerequisites
-
-- Install nodejs and npm using nvm 
-  **`nvm use 16`**
+- Install nvm using this one liner [here](https://github.com/nvm-sh/nvm#installing-and-updating) and 
+logout and log back in
+- Install nodejs and npm using nvm
+  `nvm install 16`
+  `nvm use 16`
+- Check version using `node -v` and it should be > 16
 - Obtain telegram bot id and chat id using steps below.
 - Create .env file by renaming env file and updating property values accordingly.
 
@@ -44,6 +47,7 @@ Features
 
 # Running
 Run using tools like screen,tmux or create a service file if you prefer that.
+Clone the github repo.
 After that run the following commands
 - `npm install`
 - `node index.js`
