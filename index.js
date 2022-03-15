@@ -98,7 +98,7 @@ async function checknodestatus(...heartbeat) {
     if(!heartbeat[0] && (mynodepercentage>0 || data.result === true)){
         console.log('error in the system. so triggering alert')
         slimbot.sendMessage(telegramchaitid, telegramalerttxt);
-    }else{
+    }else if(heartbeat[0]){
         console.log('heartbeat alert')
         slimbot.sendMessage(telegramchaitid, telegramalerttxt);
     }
