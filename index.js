@@ -11,6 +11,7 @@ const telegrambottoken = process.env.TELEGRAM_BOT_TOKEN
 const telegramchaitid = process.env.TELEGRAM_CHAT_ID
 const runintervalinmins = process.env.RUN_INTERVAL_IN_MINS
 const heartbeatinterval = process.env.HEARTBEAT_INTERVAL_IN_MINS
+const govproposalinterval = process.env.NEW_GOV_PROPOSALS_INTERVAL_IN_MINS
 const ethrpcendpoint = process.env.ETH_RPC_ENDPOINT
 
 const syncrequestpayload = {"id": 1, "jsonrpc": "2.0", "method": "eth_syncing", "params": []};
@@ -18,6 +19,30 @@ const slimbot = new Slimbot(telegrambottoken);
 const agent = new https.Agent({
     rejectUnauthorized: false
 });
+
+
+let CURRENT_MAX_PROPOSAL_ID = 0;
+
+
+async function checkfornewgovproposals(){
+    const res = await axios.get(umeerpcurl + 'cosmos/gov/v1beta1/proposals?pagination.limit=500',{ httpsAgent: agent })
+    const proposals = res.data.proposals;
+    const proposals_ids = proposals.map(proposal => proposal.proposal_id).map(Number)
+    const max_proposal_id = Math.max(...proposals_ids)
+
+    //first time bootstrap
+    if(CURRENT_MAX_PROPOSAL_ID===0){
+        CURRENT_MAX_PROPOSAL_ID = max_proposal_id;
+    }else if(max_proposal_id>CURRENT_MAX_PROPOSAL_ID){
+        const newproposal = proposals.filter(proposal=> Number(proposal.proposal_id) === max_proposal_id)
+        const title = newproposal[0].content.title;
+        const votingendtime = newproposal[0].voting_end_time;
+        const alertmsg = `New proposal with  <b>${title}</b> with voting end time <b>${votingendtime}</b> found`;
+        console.log(alertmsg)
+        slimbot.sendMessage(telegramchaitid, alertmsg,{parse_mode: 'HTML'});
+        CURRENT_MAX_PROPOSAL_ID = max_proposal_id;
+    }
+}
 
 
 async function checknodestatus(...heartbeat) {
@@ -83,5 +108,7 @@ async function checknodestatus(...heartbeat) {
 }
 
 checknodestatus(true);
+checkfornewgovproposals();
 setInterval(checknodestatus, runintervalinmins * 60  * 1000,false);
 setInterval(checknodestatus, heartbeatinterval * 60  * 1000,true);
+setInterval(checkfornewgovproposals,govproposalinterval * 60  * 1000);
