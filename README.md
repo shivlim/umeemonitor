@@ -13,8 +13,8 @@ Features
 # Prerequisites
 - Install nvm using this one liner [here](https://github.com/nvm-sh/nvm#installing-and-updating) and 
 logout and log back in
-- Install nodejs and npm using nvm
-  `nvm install 16`
+- Install nodejs and npm using nvm  
+  `nvm install 16`  
   `nvm use 16`
 - Check version using `node -v` and it should be > 16
 - Obtain telegram bot id and chat id using steps below.
@@ -40,9 +40,10 @@ logout and log back in
 2. UMEE_RPC_URL="https://api.blue.main.network.umee.cc/"
 3. TELEGRAM_BOT_TOKEN="Telegram bot token from above step"
 4. TELEGRAM_CHAT_ID="Telegram chat id from above step"
-5. RUN_INTERVAL_IN_MINS="Frequency of running the bot in mins. Ex: 10"
+5. RUN_INTERVAL_IN_MINS="Frequency of running the event nonce and eth sync flow in mins. Ex: 10"
 6. HEARTBEAT_INTERVAL_IN_MINS="Frequency of running the heartbeat flow in mins. Ex: 10"
 7. ETH_RPC_ENDPOINT="eth rpc endpoint. Ex: http://x.x.x.x:8545"
+8. NEW_GOV_PROPOSALS_INTERVAL_IN_MINS="Frequency of running the governence flow in mins. Ex: 10"
 
 
 # Running
@@ -51,3 +52,34 @@ Clone the github repo.
 After that run the following commands
 - `npm install`
 - `node index.js`
+
+**Service file**
+
+If you are interested in creating service file,below is an example.
+For simplicity, root user is used but you should change it to your own user.Also change the path in 
+WorkingDirectory as well as parameter for ExecStart based on where you checked out from GIT
+
+```shell
+tee $HOME/umeemonitor.service > /dev/null <<EOF
+[Unit]
+Description=UMEEMONITOR
+After=network.target
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/umeemonitor
+ExecStart=$(which node) /root/umeemonitor/index.js
+Restart=on-failure
+RestartSec=10
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+
+```shell
+sudo mv $HOME/umeemonitor.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable umeemonitor
+sudo systemctl restart umeemonitor && journalctl -u umeemonitor -f -o cat
+```
+
