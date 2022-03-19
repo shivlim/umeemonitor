@@ -3,6 +3,8 @@ Simple tool to check event nonce of validator and compare it with other top-10 v
 
 Also looks at sync status of eth rpc node and raises an alert.
 
+Alerts about new governence proposals.
+
 Features
 - Picks top-10 validator nodes by voting power and checks the latest event nonce
 - Checks for sync status of eth rpc node

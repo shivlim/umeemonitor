@@ -37,9 +37,9 @@ async function checkfornewgovproposals(){
         const newproposal = proposals.filter(proposal=> Number(proposal.proposal_id) === max_proposal_id)
         const title = newproposal[0].content.title;
         const votingendtime = newproposal[0].voting_end_time;
-        const alertmsg = `New proposal with  <b>${title}</b> with voting end time <b>${votingendtime}</b> found`;
+        const alertmsg = `New proposal with  *${title} with voting end time *${votingendtime} found`;
         console.log(alertmsg)
-        slimbot.sendMessage(telegramchaitid, alertmsg,{parse_mode: 'HTML'});
+        slimbot.sendMessage(telegramchaitid, alertmsg,{parse_mode: 'MarkdownV2'});
         CURRENT_MAX_PROPOSAL_ID = max_proposal_id;
     }
 }
@@ -89,18 +89,22 @@ async function checknodestatus(...heartbeat) {
     const mynodepercentage = (numbersGreaterThanMine/10 * 100);
     const maxeventnonce = Math.max(...eventNoncesNumber);
 
-
-
-    let telegramalerttxt = "MyEventNonce==>" + mynodeeventnonce + "\n" + "MaxEventNonce==>"+maxeventnonce
-        + "\n" + "Percentage of nodes greater than mine==>" +  mynodepercentage + "\n" + "ETH RPC node sync status==>" + data.result
+    const alertmsg = `
+                                __Event Nonce Status__
+                                \`\`\`
+                               My validator EventNonce:                 ${mynodeeventnonce}
+                               MaxEventNonce among top-10 validators:   ${maxeventnonce}
+                               Percentage of validators greater than mine:   ${mynodepercentage}
+                                \`\`\`
+                                `;
 
     /** Trigger an emergency error if there are nodes with higher event nonce than mine or eth rpc status has gone to catch-up mode*/
     if(!heartbeat[0] && (mynodepercentage>0 || data.result === true)){
         console.log('error in the system. so triggering alert')
-        slimbot.sendMessage(telegramchaitid, telegramalerttxt);
+        slimbot.sendMessage(telegramchaitid,  alertmsg,{parse_mode: 'MarkdownV2'});
     }else if(heartbeat[0]){
         console.log('heartbeat alert')
-        slimbot.sendMessage(telegramchaitid, telegramalerttxt);
+        slimbot.sendMessage(telegramchaitid,  alertmsg,{parse_mode: 'MarkdownV2'});
     }
 
 
