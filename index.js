@@ -13,6 +13,7 @@ const runintervalinmins = process.env.RUN_INTERVAL_IN_MINS
 const heartbeatinterval = process.env.HEARTBEAT_INTERVAL_IN_MINS
 const govproposalinterval = process.env.NEW_GOV_PROPOSALS_INTERVAL_IN_MINS
 const ethrpcendpoint = process.env.ETH_RPC_ENDPOINT
+const TCP_CONNECT_TIMEOUT_IN_MS = 10000
 
 const syncrequestpayload = {"id": 1, "jsonrpc": "2.0", "method": "eth_syncing", "params": []};
 const slimbot = new Slimbot(telegrambottoken);
@@ -78,28 +79,39 @@ async function checknodestatus(...heartbeat) {
         });
     }));
 
+    let source = axios.CancelToken.source();
+    setTimeout(() => {
+        source.cancel();
+    }, TCP_CONNECT_TIMEOUT_IN_MS);
+
     const mynodeeventnonceresp = await axios.get(umeerpcurl + 'gravity/v1beta/oracle/eventnonce/' + myorchaddress,{ httpsAgent: agent })
     const mynodeeventnonce  = mynodeeventnonceresp.data.event_nonce;
     let numbersGreaterThanMine = 0;
     const eventNoncesNumber = eventNonces.map(Number)
     eventNoncesNumber.map(n=> {if(n > Number(mynodeeventnonce)) numbersGreaterThanMine++;})
 
-    const syncresponse = await axios.post(ethrpcendpoint, syncrequestpayload);
+    const syncresponse = await axios.post(ethrpcendpoint, syncrequestpayload,{cancelToken: source.token});
     const data = syncresponse.data;
     const mynodepercentage = (numbersGreaterThanMine/10 * 100);
     const maxeventnonce = Math.max(...eventNoncesNumber);
+    let ethstatus=false;
+    if(data.hasOwnProperty('result') && !data.result){
+        ethstatus=true;
+    }
 
     const alertmsg = `
                                 __Event Nonce Status__
                                 \`\`\`
-                               My validator EventNonce:                 ${mynodeeventnonce}
-                               MaxEventNonce among top-10 validators:   ${maxeventnonce}
-                               Percentage of validators greater than mine:   ${mynodepercentage}
+                                       ETH RPC Node Sync Status: ${getlogo(ethstatus)}
+                                       My validator EventNonce:                     ${mynodeeventnonce}
+                                       MaxEventNonce among top-10 validators:       ${maxeventnonce}
+                                       Percentage of validators greater than mine:  ${mynodepercentage}
+                               
                                 \`\`\`
                                 `;
 
     /** Trigger an emergency error if there are nodes with higher event nonce than mine or eth rpc status has gone to catch-up mode*/
-    if(!heartbeat[0] && (mynodepercentage>0 || data.result === true)){
+    if(!heartbeat[0] && (mynodepercentage>0 || !ethstatus)){
         console.log('error in the system. so triggering alert')
         slimbot.sendMessage(telegramchaitid,  alertmsg,{parse_mode: 'MarkdownV2'});
     }else if(heartbeat[0]){
@@ -109,6 +121,12 @@ async function checknodestatus(...heartbeat) {
 
 
 
+}
+
+function getlogo(ethstatus) {
+    if(ethstatus)
+        return '✅';
+    else return '❌';
 }
 
 checknodestatus(true);
