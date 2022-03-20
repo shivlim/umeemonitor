@@ -85,3 +85,5 @@ sudo systemctl enable umeemonitor
 sudo systemctl restart umeemonitor && journalctl -u umeemonitor -f -o cat
 ```
 
+**Preview of Alert on Telegram**
+![image info](telegram_preview.jpeg)
