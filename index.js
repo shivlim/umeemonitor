@@ -2,8 +2,7 @@ const axios = require('axios');
 const Slimbot = require('slimbot');
 const https = require("https");
 require('dotenv').config()
-
-
+const { exec } = require("child_process");
 
 const myorchaddress = process.env.MY_ORCHESTRATOR_ADDRESS
 const umeerpcurl = process.env.UMEE_RPC_URL
@@ -13,6 +12,7 @@ const runintervalinmins = process.env.RUN_INTERVAL_IN_MINS
 const heartbeatinterval = process.env.HEARTBEAT_INTERVAL_IN_MINS
 const govproposalinterval = process.env.NEW_GOV_PROPOSALS_INTERVAL_IN_MINS
 const ethrpcendpoint = process.env.ETH_RPC_ENDPOINT
+const peggologmonitorenabled = process.env.PEGGO_ERROR_LOGS_MONITOR_ENABLED
 const TCP_CONNECT_TIMEOUT_IN_MS = 10000
 
 const syncrequestpayload = {"id": 1, "jsonrpc": "2.0", "method": "eth_syncing", "params": []};
@@ -45,6 +45,26 @@ async function checkfornewgovproposals(){
     }
 }
 
+async function checkforerrorlogsinpeggo(){
+    exec("journalctl -u peggod  --since \"1 minutes ago\" | grep 'ERR'", (error, stdout, stderr) => {
+        if (error) {
+            console.log(`error: ${error.message}`);
+            return;
+        }
+        if (stderr) {
+            console.log(`stderr: ${stderr}`);
+            return;
+        }
+        console.log(`stdout: ${stdout}`);
+        const alertmsg = `
+                                __Peggo Error Logs__
+                                \`\`\`
+                                       ${stdout}
+                                \`\`\`
+                                `;
+        slimbot.sendMessage(telegramchaitid,  alertmsg,{parse_mode: 'MarkdownV2'});
+    });
+}
 
 async function checknodestatus(...heartbeat) {
     const res = await axios.get(umeerpcurl + 'cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED',{ httpsAgent: agent })
@@ -134,3 +154,8 @@ checkfornewgovproposals();
 setInterval(checknodestatus, runintervalinmins * 60  * 1000,false);
 setInterval(checknodestatus, heartbeatinterval * 60  * 1000,true);
 setInterval(checkfornewgovproposals,govproposalinterval * 60  * 1000);
+console.log(peggologmonitorenabled)
+if(peggologmonitorenabled == "true"){
+    console.log("monitoring peggo logs")
+    setInterval(checkforerrorlogsinpeggo, 60  * 1000);
+}

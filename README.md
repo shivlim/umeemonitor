@@ -1,7 +1,10 @@
 # umee network monitor
 Simple tool to check event nonce of validator and compare it with other top-10 validators (with voting power) event nonce and raise an alert(right now its telegram)
+Core logic derived from peggo health checker except few modifications detailed below.
 
 Also looks at sync status of eth rpc node and raises an alert.
+
+Alerts about error logs in peggo daemon.
 
 Alerts about new governence proposals.
 
@@ -46,6 +49,8 @@ logout and log back in
 6. HEARTBEAT_INTERVAL_IN_MINS="Frequency of running the heartbeat flow in mins. Ex: 10"
 7. ETH_RPC_ENDPOINT="eth rpc endpoint. Ex: http://x.x.x.x:8545"
 8. NEW_GOV_PROPOSALS_INTERVAL_IN_MINS="Frequency of running the governence flow in mins. Ex: 10"
+9. PEGGO_ERROR_LOGS_MONITOR_ENABLED="true/false"(change it to true to monitor peggo logs every min for any error
+and send alert)
 
 
 # Running
