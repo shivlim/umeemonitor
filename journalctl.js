@@ -1,6 +1,6 @@
 const { exec } = require("child_process");
 
-exec("journalctl -u axelarmonitor  --since \"1000 minutes ago\"", (error, stdout, stderr) => {
+exec("journalctl -u axelarmonitor  --since \"1000 minutes ago\" | grep 'Ethereum'", (error, stdout, stderr) => {
     if (error) {
         console.log(`error: ${error.message}`);
         return;
