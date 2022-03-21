@@ -13,6 +13,7 @@
     "axios": "^0.26.1",
     "dotenv": "^16.0.0",
     "fast-csv": "^4.3.6",
+    "journalctl": "^1.1.0",
     "slimbot": "^5.1.0"
   }
 }
