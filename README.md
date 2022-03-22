@@ -16,6 +16,7 @@ Features
 - Error alert in telegram if there are nodes with higher event nonce than yours or eth rpc status has gone to catch-up mode.
 
 # Prerequisites
+(Always Install all this in non-root account)
 - Install nvm using this one liner [here](https://github.com/nvm-sh/nvm#installing-and-updating) and 
 logout and log back in
 - Install nodejs and npm using nvm  
