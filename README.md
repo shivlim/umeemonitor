@@ -15,8 +15,8 @@ Features
 - Heartbeat alert in telegram(configurable in minutes)
 - Error alert in telegram if there are nodes with higher event nonce than yours or eth rpc status has gone to catch-up mode.
 
-
 # Prerequisites
+(Always Install all this in non-root account)
 **If you need peggo error log alert than this needs to run on same VM as your validator node.
 You can always disable peggo alerts and run it on any non-validator machine.**
 
