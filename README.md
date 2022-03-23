@@ -17,6 +17,7 @@ Features
 
 # Prerequisites
 (Always Install all this in non-root account)
+
 **If you need peggo error log alert than this needs to run on same VM as your validator node.
 You can always disable peggo alerts and run it on any non-validator machine.**
 
