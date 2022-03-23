@@ -154,8 +154,7 @@ checkfornewgovproposals();
 setInterval(checknodestatus, runintervalinmins * 60  * 1000,false);
 setInterval(checknodestatus, heartbeatinterval * 60  * 1000,true);
 setInterval(checkfornewgovproposals,govproposalinterval * 60  * 1000);
-console.log(peggologmonitorenabled)
-if(peggologmonitorenabled == "true"){
+if(peggologmonitorenabled === "true"){
     console.log("monitoring peggo logs")
     setInterval(checkforerrorlogsinpeggo, 60  * 1000);
 }

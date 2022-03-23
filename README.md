@@ -15,7 +15,11 @@ Features
 - Heartbeat alert in telegram(configurable in minutes)
 - Error alert in telegram if there are nodes with higher event nonce than yours or eth rpc status has gone to catch-up mode.
 
+
 # Prerequisites
+**If you need peggo error log alert than this needs to run on same VM as your validator node.
+You can always disable peggo alerts and run it on any non-validator machine.**
+
 - Install nvm using this one liner [here](https://github.com/nvm-sh/nvm#installing-and-updating) and 
 logout and log back in
 - Install nodejs and npm using nvm  
